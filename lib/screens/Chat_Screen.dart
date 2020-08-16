@@ -1,3 +1,4 @@
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import 'package:flutterchatapplication/ReusableComponents/customMessageWidgetsLo
 import 'package:flutterchatapplication/screens/cameraScreen.dart';
 import 'package:flutterchatapplication/screens/contactsWidget.dart';
 import 'package:flutterchatapplication/constants.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 FirebaseUser loggedInUser;
 final _firestore = Firestore.instance;
@@ -17,12 +19,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  Iterable<Contact> contactsList;
   final _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
     getCurrentUser();
+    getContacts();
   }
 
   void getCurrentUser() async {
@@ -34,6 +38,22 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print(e);
+    }
+  }
+
+  getContacts() async {
+    var status = await Permission.contacts.status;
+    do {
+      if (!status.isGranted)
+        await Permission.contacts.request();
+      else
+        status = PermissionStatus.granted;
+    } while (!status.isGranted);
+    if (status == PermissionStatus.granted) {
+      final _contactsinternal = await ContactsService.getContacts();
+      setState(() {
+        contactsList = _contactsinternal;
+      });
     }
   }
 
@@ -97,7 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ChatsTab(
                 textController: textController,
               ),
-              ContactsPage(),
+              ContactsPage(contactsList),
             ],
           ),
         ),
@@ -165,21 +185,24 @@ class _ChatsTabState extends State<ChatsTab> {
                     decoration: kMessageTextFieldDecoration,
                   ),
                 ),
-                FloatingActionButton(
-                  elevation: 10.0,
-                  tooltip: "Send",
-                  shape: StadiumBorder(),
-                  child: Icon(Icons.send),
-                  onPressed: () {
-                    //Implement send functionality.
-                    if (widget.textController.text.isNotEmpty) {
-                      _firestore.collection('messages').add({
-                        'message': widget.textController.text,
-                        'sender': loggedInUser.email,
-                      });
-                      widget.textController.clear();
-                    }
-                  },
+                Container(
+                  child: FloatingActionButton(
+                    elevation: 10.0,
+                    tooltip: "Send",
+                    shape: StadiumBorder(),
+                    child: Icon(Icons.send),
+                    onPressed: () {
+                      //Implement send functionality.
+                      if (widget.textController.text.isNotEmpty) {
+                        _firestore.collection('messages').add({
+                          'message': widget.textController.text,
+                          'sender': loggedInUser.email,
+                          'time': DateTime.now().toString()
+                        });
+                        widget.textController.clear();
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

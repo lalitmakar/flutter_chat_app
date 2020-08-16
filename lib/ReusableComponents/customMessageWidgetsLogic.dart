@@ -17,29 +17,33 @@ class CustomMessageWidget extends StatelessWidget {
             "$sender",
             style: TextStyle(color: Colors.black54),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 3.0),
-            child: Material(
-              borderRadius: isMe
-                  ? BorderRadius.only(
-                      topLeft: Radius.circular(30.0),
-                      bottomRight: Radius.circular(30.0),
-                      bottomLeft: Radius.circular(30.0))
-                  : BorderRadius.only(
-                      topRight: Radius.circular(30.0),
-                      bottomRight: Radius.circular(30.0),
-                      bottomLeft: Radius.circular(30.0)),
-              elevation: 5.0,
-              color: isMe ? Colors.lightBlueAccent : Colors.purpleAccent,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 10.0),
-                child: Text(
-                  '$messageText',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ),
+          SizedBox(
+            height: 5.0,
+          ),
+          Container(
+            decoration: BoxDecoration(
+                borderRadius: isMe
+                    ? BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        bottomRight: Radius.circular(30.0),
+                        bottomLeft: Radius.circular(30.0))
+                    : BorderRadius.only(
+                        topRight: Radius.circular(30.0),
+                        bottomRight: Radius.circular(30.0),
+                        bottomLeft: Radius.circular(30.0)),
+                gradient: LinearGradient(colors: [
+                  Color(0xFF6487FD),
+                  Color(0xFF41D2E7),
+                ])),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+              child: Text(
+                '$messageText',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
                 ),
               ),
             ),
